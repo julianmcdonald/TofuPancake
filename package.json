@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": ">=18 <=22"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "cd backend && npm install --only=prod && npm run build && cd ../frontend && npm install --only=dev && npm install && npm run build && cp -R build ../backend/dist/build && cd ..",
+    "build": "cd backend && npm ci && npm run build && cd ../frontend && npm install --legacy-peer-deps && npm run build && rm -rf ../backend/dist/build && cp -R build ../backend/dist/build && cd ..",
     "start": "cd backend && npm start"
   },
   "repository": {

@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: tofupancake
+    runtime: node
+    plan: free
+    region: singapore
+    branch: main
+    buildCommand: npm run build
+    startCommand: npm start
+    healthCheckPath: /api/leaderboard
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22
+      - key: NODE_OPTIONS
+        value: --openssl-legacy-provider
+      - key: DATABASE_URL
+        sync: false

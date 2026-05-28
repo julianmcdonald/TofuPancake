@@ -85,3 +85,19 @@ npm test
 
 ### Music
 Royalty Free Music — Creative Commons - Mornings with u by Barradeen [ Hip-Hop / Rap ]: https://www.youtube.com/watch?v=6qy_1S3y8J0
+
+## Deploy to Render with Neon Database
+
+This repository includes a Blueprint configuration (`render.yaml`) to seamlessly deploy the application as a single unified service to Render connected to a serverless **Neon PostgreSQL** database.
+
+### Setup Steps
+1. **Provision a Neon Postgres Database:**
+   - Log in to the [Neon Console](https://console.neon.tech/) and create a new project.
+   - Copy your connection string from the Dashboard (e.g. `postgresql://user:pass@ep-hostname.region.pooler.neon.tech/neondb?sslmode=require`).
+2. **Deploy via Render Blueprint:**
+   - Go to your [Render Dashboard](https://dashboard.render.com/) and choose **New -> Blueprint**.
+   - Connect your fork or clone of this repository.
+3. **Set the Environment Variables:**
+   - Render will identify the environment variable requirement for `DATABASE_URL` from the blueprint.
+   - Securely paste your copied Neon connection string.
+   - Submit and trigger the deploy. Render will automatically install dependencies, build the frontend React application, compile the backend with Babel, host the static SPA files under Express, and run the service.
