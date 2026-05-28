@@ -1,9 +1,25 @@
-import firebase from 'firebase-admin';
-// Initialize firebase.
-require('dotenv').config();
+const mockAuth = {
+  verifyIdToken: async (token) => {
+    return {
+      uid: token || 'dummy-user-uid',
+      picture: null,
+    };
+  },
+  getUser: async (uid) => {
+    return {
+      uid: uid || 'dummy-user-uid',
+      displayName: 'Guest Player',
+      photoURL: null,
+    };
+  },
+};
 
-firebase.initializeApp({
-  credentials: firebase.credential.applicationDefault(),
-});
+const mockFirebase = {
+  auth: () => mockAuth,
+  credential: {
+    applicationDefault: () => ({}),
+  },
+  initializeApp: () => ({}),
+};
 
-export default firebase;
+export default mockFirebase;

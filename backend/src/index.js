@@ -1,10 +1,10 @@
 import express from 'express';
 import http from 'http';
 import path from 'path';
-import mongoose from 'mongoose';
 import * as SocketOn from './sockets/on';
 import { initSocketServer, getSocketIO } from './sockets';
 import routes from './routes';
+import { initDb } from './db';
 
 const app = express();
 const server = http.createServer(app);
@@ -13,18 +13,10 @@ const io = getSocketIO();
 
 require('dotenv').config();
 
-const mongoUri = process.env.ATLAS_URI;
-mongoose.connect(
-  mongoUri,
-  { useNewUrlParser: true, useUnifiedTopology: true },
-  (err) => {
-    if (err) {
-      throw err;
-    } else {
-      console.log('Successfully connected to MongoDB Atlas.');
-    }
-  },
-);
+initDb().catch((err) => {
+  console.error('Fatal database initialization error:', err);
+  process.exit(1);
+});
 
 const PORT = process.env.PORT || 3001;
 

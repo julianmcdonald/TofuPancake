@@ -6,14 +6,7 @@ import firebase from '../../firebase';
 import { LobbyRegister } from '../LobbyRegister';
 
 async function retrieveUIDFromFirebaseId(firebaseId) {
-  if (!firebaseId) {
-    return null;
-  }
-  return firebase
-    .auth()
-    .verifyIdToken(firebaseId)
-    .then(async (decodedToken) => decodedToken.uid)
-    .catch(() => null); // Handle error);
+  return null;
 }
 
 /**

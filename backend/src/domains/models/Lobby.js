@@ -89,10 +89,6 @@ export class Lobby {
 
   // eslint-disable-next-line class-methods-use-this
   async getFirebaseUser(firebaseUserIdToken) {
-    if (firebaseUserIdToken) {
-      const firebaseUser = await firebase.auth().verifyIdToken(firebaseUserIdToken);
-      return firebaseUser;
-    }
     return null;
   }
 }

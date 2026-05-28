@@ -1,4 +1,4 @@
-import { Prose } from '../../mongo/models/prose';
+import { pool } from '../../db';
 import { gameLength } from '../gameConfig';
 
 function randomInt(max) {
@@ -6,31 +6,43 @@ function randomInt(max) {
 }
 
 /**
- * Generate random text for players to type.
+ * Generate random text for players to type from PostgreSQL.
  * @returns Random text for players to type.
  */
 export async function getRandomText() {
-  const numOfTexts = await Prose.countDocuments();
-  const text = await Prose.findById(randomInt(numOfTexts));
+  // Query a random prose row from PostgreSQL
+  const res = await pool.query('SELECT * FROM prose ORDER BY RANDOM() LIMIT 1');
+  
+  if (res.rows.length === 0) {
+    // Return a fallback paragraph if database is somehow not seeded yet
+    return [
+      "The quick brown fox jumps over the lazy dog.",
+      "Typing quickly and accurately is an essential skill for modern developers.",
+      "Practice makes perfect when it comes to speed and consistency in typing."
+    ];
+  }
+
+  const text = res.rows[0];
+  const sentences = text.sentences;
 
   // gets a random index sentence, this will act as the anchor for sentence selection
-  let firstSentenceIndex = randomInt(text.sentences.length);
-  const gameText = [text.sentences[firstSentenceIndex]];
+  let firstSentenceIndex = randomInt(sentences.length);
+  const gameText = [sentences[firstSentenceIndex]];
   let lastSentenceIndex = firstSentenceIndex;
 
   // final length of text to type will always be at least the specified gameLength
   while (gameText.join(' ').length < gameLength) {
-    if (lastSentenceIndex + 1 >= text.sentences.length) {
+    if (lastSentenceIndex + 1 >= sentences.length) {
       // if sentence index overflows, start picking from before firstSentenceIndex
       firstSentenceIndex -= 1;
       // if index is less than zero, then all text in file has been selected
       if (firstSentenceIndex < 0) {
         return gameText;
       }
-      gameText.unshift(text.sentences[firstSentenceIndex]);
+      gameText.unshift(sentences[firstSentenceIndex]);
     } else {
       lastSentenceIndex += 1;
-      gameText.push(text.sentences[lastSentenceIndex]);
+      gameText.push(sentences[lastSentenceIndex]);
     }
   }
   return gameText;
