@@ -14,12 +14,16 @@ function AppContextProvider({ children }) {
     audio.volume = 0.1;
 
     useEffect(() => {
-        auth.onIdTokenChanged(async (auth) => {
-            if (auth) {
-                const token = await auth.getIdToken();
+        auth.onIdTokenChanged(async (user) => {
+            if (user) {
+                const token = await user.getIdToken();
                 setFirebaseUserIdToken(token);
+                if (auth.currentUser) {
+                    setUsername(auth.currentUser.displayName);
+                }
             } else {
                 setFirebaseUserIdToken(null);
+                setUsername('');
             }
         });
     }, []);

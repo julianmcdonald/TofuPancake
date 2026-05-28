@@ -5,7 +5,7 @@ import useProfileStyles from './ProfileCard.override';
 import useStyles from '../../../styleOverrides/buttons';
 import { auth, firebase } from '../../../../firebase';
 import { AppContext } from '../../../../AppContextProvider';
-import { Button, IconButton } from '@material-ui/core';
+import { Button, IconButton, TextField } from '@material-ui/core';
 import ProfileIcon from './profileIcon/ProfileIcon';
 import { useHistory } from 'react-router-dom';
 
@@ -15,6 +15,7 @@ export default function ProfileCard() {
     const [restrict, setRestrict] = useState(false);
     const [showProfileInfo] = useState(true);
     const { firebaseUserIdToken } = useContext(AppContext);
+    const [loginName, setLoginName] = useState('');
 
     const classes = useStyles();
     const profileClasses = useProfileStyles();
@@ -28,11 +29,7 @@ export default function ProfileCard() {
     })
 
     function handleToggle() {
-        if(firebaseUserIdToken){
-            setOpen((prevOpen) => !prevOpen);
-        }else if (!restrict){
-            googleLogin();
-        }
+        setOpen((prevOpen) => !prevOpen);
     };
 
     function toProfilePage() {
@@ -40,15 +37,6 @@ export default function ProfileCard() {
             pathname: '/profile',
             state: {},
         });
-    }
-
-    async function googleLogin() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        await auth.signInWithPopup(provider).then(() => {
-            console.log('Logged in Successfully.');
-          }).catch((error) => {
-            console.log('Error logging in.', error);
-          });
     }
     
     async function googleLogout() {
@@ -69,17 +57,46 @@ export default function ProfileCard() {
                     </IconButton>
                     { showProfileInfo ?
                         <div className={styles.statusBar}>
-                                <h2 className={styles.profileName}>{auth?.currentUser?.displayName}</h2>
-                                { restrict ? null :
-                                <div className={styles.profileActionsContainer}>
-                                    <Button className={`${profileClasses.profileActionsBtn} ${classes.button}`} onClick={toProfilePage}>
-                                        Profile
-                                    </Button>
-                                    <Button className={`${profileClasses.profileActionsBtn} ${classes.button} ${classes.redButton}`} onClick={googleLogout}>
-                                        Log out
+                            { firebaseUserIdToken ? (
+                                <>
+                                    <h2 className={styles.profileName}>{auth?.currentUser?.displayName}</h2>
+                                    { restrict ? null :
+                                    <div className={styles.profileActionsContainer}>
+                                        <Button className={`${profileClasses.profileActionsBtn} ${classes.button}`} onClick={toProfilePage}>
+                                            Profile
+                                        </Button>
+                                        <Button className={`${profileClasses.profileActionsBtn} ${classes.button} ${classes.redButton}`} onClick={googleLogout}>
+                                            Log out
+                                        </Button>
+                                    </div>
+                                    }
+                                </>
+                            ) : (
+                                <div style={{ display: 'flex', alignItems: 'center', padding: '0 8px' }}>
+                                    <TextField
+                                        size="small"
+                                        label="Name"
+                                        variant="outlined"
+                                        value={loginName}
+                                        onChange={(e) => setLoginName(e.target.value)}
+                                        style={{ marginRight: '8px', maxWidth: '120px' }}
+                                        inputProps={{ style: { color: 'white' } }}
+                                        InputLabelProps={{ style: { color: '#ccc' } }}
+                                    />
+                                    <Button 
+                                        className={classes.button}
+                                        style={{ height: '36px' }}
+                                        onClick={() => {
+                                            if (loginName.trim()) {
+                                                auth.mockLogin(loginName.trim());
+                                                setLoginName('');
+                                            }
+                                        }}
+                                    >
+                                        Log In
                                     </Button>
                                 </div>
-                                }
+                            )}
                         </div>
                     : null
                     }

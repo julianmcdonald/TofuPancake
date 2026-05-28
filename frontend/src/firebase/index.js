@@ -1,18 +1,36 @@
+let tokenListeners = [];
+let currentUserVal = null;
+
 const mockAuth = {
   onIdTokenChanged: (callback) => {
-    // Instantly notify application that there is no active logged-in user (default to guest mode)
-    callback(null);
-    return () => {};
+    tokenListeners.push(callback);
+    callback(currentUserVal ? { getIdToken: async () => 'mock-session-token' } : null);
+    return () => {
+      tokenListeners = tokenListeners.filter(l => l !== callback);
+    };
   },
   signInWithPopup: async () => {
-    console.log('Sign in is disabled in guest mode.');
     return {};
   },
   signOut: async () => {
-    console.log('Sign out is disabled in guest mode.');
+    currentUserVal = null;
+    tokenListeners.forEach(l => l(null));
     return {};
   },
-  currentUser: null,
+  mockLogin: (name) => {
+    currentUserVal = {
+      displayName: name,
+      photoURL: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`,
+    };
+    tokenListeners.forEach(l => l({ getIdToken: async () => 'mock-session-token' }));
+  },
+  mockLogout: () => {
+    currentUserVal = null;
+    tokenListeners.forEach(l => l(null));
+  },
+  get currentUser() {
+    return currentUserVal;
+  }
 };
 
 const mockFirebase = {
